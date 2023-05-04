@@ -17,10 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-from api.api import viewsets as loans
+from api_loans.api.viewsets import EmprestimoViewSet, PagamentoViewSet
 
 route = routers.DefaultRouter()
-route.register(r'loans', loans.EmprestimoViewSet, basename="Books")
+route.register(r'loans', EmprestimoViewSet, basename="Loans")
+route.register(r'payment', PagamentoViewSet, basename="Payment")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
