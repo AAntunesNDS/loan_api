@@ -20,10 +20,7 @@ from rest_framework import routers
 from api_loans.api.viewsets import EmprestimoViewSet, PagamentoViewSet
 
 route = routers.DefaultRouter()
-route.register(r'loans', EmprestimoViewSet, basename="Loans")
-route.register(r'payment', PagamentoViewSet, basename="Payment")
+route.register(r"loans", EmprestimoViewSet, basename="Loans")
+route.register(r"payment", PagamentoViewSet, basename="Payment")
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include(route.urls))
-]
+urlpatterns = [path("admin/", admin.site.urls), path("", include(route.urls))]

@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Emprestimo, Pagamento
 
+
 # Register your models here.
 @admin.register(Emprestimo)
 class EmprestimoAdmin(admin.ModelAdmin):
@@ -18,5 +19,3 @@ class PagamentoAdmin(admin.ModelAdmin):
         if request.user.is_superuser:
             return qs
         return qs.filter(cliente=request.user)
-
-

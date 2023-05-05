@@ -7,6 +7,7 @@ class EmprestimoViewSet(viewsets.ModelViewSet):
     serializer_class = EmprestimoSerializer
     queryset = Emprestimo.objects.all()
 
+
 class PagamentoViewSet(viewsets.ModelViewSet):
     serializer_class = PagamentoSerializer
     queryset = Pagamento.objects.all()

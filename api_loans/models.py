@@ -3,6 +3,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.contrib.auth.models import User
 
+
 # Create your models here.
 class Emprestimo(models.Model):
     id_emprestimo = models.UUIDField(primary_key=True, default=uuid4, editable=False)
@@ -15,7 +16,6 @@ class Emprestimo(models.Model):
     created_at = models.DateField(auto_now_add=True)
 
 
-
 class Pagamento(models.Model):
     id_pagamento = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     id_emprestimo = models.ForeignKey(Emprestimo, on_delete=models.CASCADE)
@@ -23,8 +23,6 @@ class Pagamento(models.Model):
     valor_pagamento = models.DecimalField(max_digits=10, decimal_places=2)
     cliente = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateField(auto_now_add=True)
-    
-    def __str__(self):
-        return f'Pagamento {self.id_pagamento}'
 
-    
+    def __str__(self):
+        return f"Pagamento {self.id_pagamento}"
