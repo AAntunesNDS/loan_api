@@ -83,7 +83,7 @@ Caso seu token expire, acesse a rota http://127.0.0.1:8000/api/token/refresh/ co
 
 ```json
 {
-	"refresh":"token_refresh_example
+	"refresh":"token_refresh_example"
 }
 ```
 
