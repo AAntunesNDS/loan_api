@@ -1,5 +1,7 @@
 from django.test import TestCase
 from django.utils import timezone
+from django.urls import reverse
+from rest_framework import status
 from decimal import Decimal
 from .models import Emprestimo, Pagamento
 from uuid import UUID
@@ -15,6 +17,7 @@ class TestEmprestimoViewSet(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create(username="testuser")
+        self.client.force_authenticate(user=self.user)
 
     def test_listar_emprestimos(self):
         Emprestimo.objects.create(
@@ -40,7 +43,7 @@ class TestEmprestimoViewSet(TestCase):
 
     def test_criar_emprestimo(self):
         data = {
-            "valor_nominal": 1000,
+            "valor_nominal": 1000.00,
             "taxa_de_juros": 0.1,
             "endereco_ip": "127.0.0.1",
             "data_solicitacao": "2022-01-01T00:00:00Z",
@@ -53,11 +56,49 @@ class TestEmprestimoViewSet(TestCase):
         emprestimo = Emprestimo.objects.first()
         self.assertEqual(emprestimo.valor_nominal, data["valor_nominal"])
 
+    def test_saldo_devedor(self):
+        emprestimo = Emprestimo.objects.create(
+            valor_nominal=1000.00,
+            taxa_de_juros=5.00,
+            endereco_ip="192.168.0.1",
+            data_solicitacao="2022-01-02T00:00:00Z",
+            banco="Meu banco",
+            cliente=self.user,
+        )
+        response = self.client.get(f"/loans/{emprestimo.id_emprestimo}/saldo-devedor/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("saldo_devedor", response.data)
+
+    def test_saldo_devedor_atualizado(self):
+        emprestimo = Emprestimo.objects.create(
+            valor_nominal=1000.00,
+            taxa_de_juros=1.00,
+            endereco_ip="192.168.0.1",
+            data_solicitacao="2022-01-02T00:00:00Z",
+            banco="Meu banco",
+            cliente=self.user,
+        )
+        response = self.client.get(f"/loans/{emprestimo.id_emprestimo}/saldo-devedor/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # simula um pagamento de 500 reais
+        Pagamento.objects.create(
+            id_emprestimo=emprestimo,
+            valor_pagamento=500.00,
+            data_pagamento="2023-01-01T00:00:00Z",
+        )
+
+        # espera que o saldo devedor tenha sido atualizado
+        response = self.client.get(f"/loans/{emprestimo.id_emprestimo}/saldo-devedor/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(response.data["saldo_devedor"], emprestimo.valor_nominal)
+
 
 class TestPagamentoViewSet(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create(username="testuser")
+        self.client.force_authenticate(user=self.user)
         self.emprestimo = Emprestimo.objects.create(
             valor_nominal=1000,
             taxa_de_juros=0.1,
@@ -128,7 +169,7 @@ class EmprestimoTest(TestCase):
     def test_taxa_de_juros_max_digits(self):
         emprestimo = Emprestimo.objects.get(id_emprestimo=self.emprestimo.id_emprestimo)
         max_digits = emprestimo._meta.get_field("taxa_de_juros").max_digits
-        self.assertEqual(max_digits, 2)
+        self.assertEqual(max_digits, 3)
 
     def test_endereco_ip_max_length(self):
         emprestimo = Emprestimo.objects.get(id_emprestimo=self.emprestimo.id_emprestimo)
@@ -192,18 +233,3 @@ class PagamentoTestCase(TestCase):
         self.assertEqual(
             str(self.pagamento), f"Pagamento {self.pagamento.id_pagamento}"
         )
-
-    # def test_valor_restante_deve_retornar_valor_correto(self):
-    # valor_restante = self.pagamento.valor_restante()
-    # self.assertEqual(valor_restante, Decimal('500.00'))
-
-    # def test_valor_restante_deve_retornar_zero_quando_pagamento_igual_ao_valor_do_emprestimo(self):
-    #    pagamento = Pagamento.objects.create(
-    #        id_emprestimo=self.emprestimo,
-    #        data_pagamento=datetime.now(),
-    #        valor_pagamento=Decimal('1000.00'),
-    #        cliente=self.user,
-    #        created_at=datetime.now().date()
-    #    )
-    #    valor_restante = pagamento.valor_restante()
-    #    self.assertEqual(valor_restante, Decimal('0.00'))

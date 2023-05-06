@@ -18,9 +18,15 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from api_loans.api.viewsets import EmprestimoViewSet, PagamentoViewSet
+from api_loans.views import MyTokenObtainPairView, MyTokenRefreshView
 
 route = routers.DefaultRouter()
 route.register(r"loans", EmprestimoViewSet, basename="Loans")
 route.register(r"payment", PagamentoViewSet, basename="Payment")
 
-urlpatterns = [path("admin/", admin.site.urls), path("", include(route.urls))]
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("", include(route.urls)),
+    path("api/token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/refresh/", MyTokenRefreshView.as_view(), name="token_refresh"),
+]

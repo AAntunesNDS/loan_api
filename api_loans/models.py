@@ -4,11 +4,11 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 
-# Create your models here.
 class Emprestimo(models.Model):
     id_emprestimo = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     valor_nominal = models.DecimalField(max_digits=10, decimal_places=2)
-    taxa_de_juros = models.DecimalField(max_digits=2, decimal_places=2)
+    valor_devido = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    taxa_de_juros = models.DecimalField(max_digits=3, decimal_places=2)
     endereco_ip = models.CharField(max_length=20)
     data_solicitacao = models.DateTimeField()
     banco = models.CharField(max_length=255)
