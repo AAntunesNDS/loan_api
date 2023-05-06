@@ -66,6 +66,8 @@ class EmprestimoViewSet(viewsets.ModelViewSet):
                 ) * valor_nominal + valor_nominal
                 valor_nominal = valor_devido
 
+            valor_devido -= valor_pago
+
         emprestimo.valor_devido = valor_devido  # atualiza o atributo valor_devido
         emprestimo.save()  # salva o objeto atualizado
 

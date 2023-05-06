@@ -91,7 +91,7 @@ class TestEmprestimoViewSet(TestCase):
         # espera que o saldo devedor tenha sido atualizado
         response = self.client.get(f"/loans/{emprestimo.id_emprestimo}/saldo-devedor/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(response.data["saldo_devedor"], emprestimo.valor_nominal)
+        self.assertLess(response.data["saldo_devedor"], emprestimo.valor_nominal)
 
 
 class TestPagamentoViewSet(TestCase):
